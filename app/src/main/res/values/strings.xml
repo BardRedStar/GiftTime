@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">Gift Time</string>
+    <string name="title_cards">Мои карты</string>
+    <string name="title_settings">Настройки</string>
+    <string-array name="partners">
+        <item>TechnoMax</item>
+        <item>Tuman</item>
+    </string-array>
+</resources>

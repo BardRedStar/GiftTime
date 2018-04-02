@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/navigation_cards"
+        android:icon="@mipmap/ic_credit_card_black_18dp"
+        android:title="@string/title_cards" />
+
+    <item
+        android:id="@+id/navigation_settings"
+        android:icon="@mipmap/ic_settings_black_18dp"
+        android:title="@string/title_settings" />
+
+</menu>
