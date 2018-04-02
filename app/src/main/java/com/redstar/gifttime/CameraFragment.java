@@ -35,6 +35,11 @@ public class CameraFragment extends Fragment implements SurfaceHolder.Callback,
 
     }
 
+    /**
+     * Creates new {@link CameraFragment} instance.
+     *
+     * @return new {@link CameraFragment} object
+     */
     public static CameraFragment newInstance(String param1, String param2) {
         return new CameraFragment();
     }
@@ -51,6 +56,7 @@ public class CameraFragment extends Fragment implements SurfaceHolder.Callback,
 
         view = inflater.inflate(R.layout.fragment_camera, container, false);
         preview = view.findViewById(R.id.cameraSurface);
+        /// Set up autofocus when user touch screen
         preview.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -58,9 +64,12 @@ public class CameraFragment extends Fragment implements SurfaceHolder.Callback,
             }
         });
 
+        /// Initialize preview surface
         surfaceHolder = preview.getHolder();
         surfaceHolder.addCallback(thisFragment);
         surfaceHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
+
+        /// Set callback to make photo button
         AppCompatButton btn = view.findViewById(R.id.makePhotoButton);
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -69,12 +78,15 @@ public class CameraFragment extends Fragment implements SurfaceHolder.Callback,
                 camera.autoFocus(thisFragment);
             }
         });
-
-        Log.w("Camera Gift Time", "Fragment created");
-
         return view;
     }
 
+    /**
+     * Auto focus callback. Called when camera was focused.
+     *
+     * @param paramBoolean true, if camera was successfully focused, false otherwise.
+     * @param paramCamera Camera object
+     */
     @Override
     public void onAutoFocus(boolean paramBoolean, Camera paramCamera) {
         if (paramBoolean) {
@@ -85,38 +97,69 @@ public class CameraFragment extends Fragment implements SurfaceHolder.Callback,
         prepare = false;
     }
 
+    /**
+     * Called when picture has been taken.
+     *
+     * @param photo photo converted in byte array
+     * @param paramCamera Camera object
+     */
     @Override
     public void onPictureTaken(byte[] photo, Camera paramCamera) {
+        /// Convert byte array to Bitmap
         Bitmap taken = BitmapFactory.decodeByteArray(photo, 0, photo.length);
+
+        ///Rotate picture on 90 degrees
         Matrix matrix = new Matrix();
         Camera.Parameters cp = camera.getParameters();
         Camera.Size size = cp.getPictureSize();
         matrix.postRotate(90);
         ImageView img = view.findViewById(R.id.cameraOverlayImage);
 
+        /// Crop photo by overlay area
         int px_height = (int) (img.getWidth() * size.height / ((float) preview.getWidth()));
         int px_width = px_height * 5 / 8;
         Bitmap cropped = Bitmap.createBitmap(taken, (size.width - px_width) / 2,
                 (size.height - px_height) / 2, px_width, px_height, matrix, false);
+
+        /// Throw cropped photo to activity
         mListener.onPhotoTaken(cropped);
     }
 
+    /**
+     * Calls when surface has been created
+     *
+     * @param holder Preview holder
+     */
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
         safeCameraOpen();
-        Log.w("Camera Gift Time", "Surface created");
     }
 
+    /**
+     * Calls when surface parameters has been changed
+     *
+     * @param holder Preview holder
+     * @param format Unknown
+     * @param height Height size
+     * @param width Width size
+     */
     @Override
     public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-        Log.w("Camera Gift Time", "Surface changed");
     }
 
+    /**
+     * Calls when surface has been destroyed
+     *
+     * @param holder Preview holder
+     */
     @Override
     public void surfaceDestroyed(SurfaceHolder holder) {
-        Log.w("Camera Gift Time", "Surface destroyed");
     }
 
+    /**
+     * Opens {@link android.graphics.Camera camera} safety (with releasing another camera if
+     * it was opened). Rotates camera and applies optimal picture resolution.
+     */
     public void safeCameraOpen() {
         boolean qOpened;
 
@@ -139,18 +182,17 @@ public class CameraFragment extends Fragment implements SurfaceHolder.Callback,
                     e.printStackTrace();
                     releaseCameraAndPreview();
                 }
-                Log.w("Camera Gift Time", "Camera has been opened");
             } else Log.w("Camera Gift Time", "Failed to open Camera");
         } catch (Exception e) {
-            Log.w("Camera Gift Time", "Failed to open Camera");
             e.printStackTrace();
         }
     }
 
+    /**
+     * Releases camera with preview stopping.
+     */
     public void releaseCameraAndPreview() {
-        Log.w("Camera Gift Time", "Try to release Camera");
         if (camera != null) {
-            Log.w("Camera Gift Time", "Camera has been released");
             camera.setPreviewCallback(null);
             camera.stopPreview();
             camera.release();
@@ -177,6 +219,7 @@ public class CameraFragment extends Fragment implements SurfaceHolder.Callback,
     }
 
     public interface FragmentListener {
+        /// Method, which throws photo to activity
         void onPhotoTaken(Bitmap photo);
     }
 }

@@ -21,7 +21,11 @@ public class MainFragment extends Fragment {
     public MainFragment() {
     }
 
-
+    /**
+     * Creates new {@link MainFragment} instance.
+     *
+     * @return new {@link MainFragment} object
+     */
     public static MainFragment newInstance(int columnCount) {
         MainFragment fragment = new MainFragment();
         Bundle args = new Bundle();
@@ -30,6 +34,10 @@ public class MainFragment extends Fragment {
         return fragment;
     }
 
+    /**
+     * Updates info in {@link RecyclerView RecyclerView}.
+     * @param list {@link ArrayList ArrayList} with data to take from
+     */
     public void updateList(ArrayList<SaleCard> list) {
         recyclerView.setAdapter(new SaleCardRecyclerViewAdapter(list, mListener));
     }
@@ -44,6 +52,7 @@ public class MainFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_main, container, false);
 
+        /// Set up button callback and recycler view
         ImageButton btn = view.findViewById(R.id.addCardImage);
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -51,6 +60,7 @@ public class MainFragment extends Fragment {
                 mListener.onAddButtonClicked();
             }
         });
+
         recyclerView = view.findViewById(R.id.listSaleCard);
         recyclerView.setLayoutManager(new LinearLayoutManager(view.getContext()));
         updateList(new ArrayList<SaleCard>());
@@ -78,8 +88,15 @@ public class MainFragment extends Fragment {
 
     public interface FragmentListener {
 
+        /// Method calls when card photo button has been clicked
         void onAddButtonClicked();
 
+        /**
+         * Calls when user clicked on {@link SaleCard card} in list
+         *
+         * @param item {@link SaleCard card object} which has been clicked
+         * @param position position of card in list
+         */
         void onListFragmentInteraction(SaleCard item, int position);
     }
 }

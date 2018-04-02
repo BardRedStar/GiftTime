@@ -21,9 +21,13 @@ public class InfoCardFragment extends Fragment {
     private View view;
 
     public InfoCardFragment() {
-
     }
 
+    /**
+     * Creates new {@link InfoCardFragment} instance.
+     *
+     * @return new {@link InfoCardFragment} object
+     */
     public static InfoCardFragment newInstance(String param1, String param2) {
 
         return new InfoCardFragment();
@@ -43,6 +47,14 @@ public class InfoCardFragment extends Fragment {
         return view;
     }
 
+    /**
+     * Sets values in fields.
+     *
+     * @param companyName Name of partner company
+     * @param cardDescription Description of {@link SaleCard card}
+     * @param cardCodePhoto card code photo bitmap
+     * @param cardPhoto card photo bitmap
+     */
     public void setDefaultValues(String companyName, String cardDescription, Bitmap cardCodePhoto, Bitmap cardPhoto) {
         TextView tv = view.findViewById(R.id.infoCompanyNameTextView);
         tv.setText(companyName);
@@ -57,11 +69,21 @@ public class InfoCardFragment extends Fragment {
         img.setImageBitmap(cardPhoto);
     }
 
+    /**
+     * Sets card photo to {@link ImageView}
+     *
+     * @param cardImage Image to set
+     */
     public void setCardImage(Bitmap cardImage) {
         ImageView img = view.findViewById(R.id.infoCardPhotoImageView);
         img.setImageBitmap(cardImage);
     }
 
+    /**
+     * Sets card code photo to {@link ImageView}
+     *
+     * @param cardCodeImage Image to set
+     */
     public void setCardCodeImage(Bitmap cardCodeImage) {
         ImageView img = view.findViewById(R.id.infoCardCodePhotoImageView);
         img.setImageBitmap(cardCodeImage);

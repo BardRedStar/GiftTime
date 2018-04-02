@@ -28,10 +28,13 @@ public class AuthFragment extends Fragment {
     public AuthFragment() {
     }
 
-    public static AuthFragment newInstance(String param1, String param2) {
+    /**
+     * Creates new {@link AuthFragment} instance.
+     *
+     * @return new {@link AuthFragment} object
+     */
+    public static AuthFragment newInstance() {
         AuthFragment fragment = new AuthFragment();
-        Bundle args = new Bundle();
-
         return fragment;
     }
 
@@ -41,32 +44,24 @@ public class AuthFragment extends Fragment {
         context = this;
     }
 
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
         // Inflate the layout for this fragment
         view = inflater.inflate(R.layout.fragment_auth, container, false);
+
+        /// Auth Button callback
         AppCompatButton button = view.findViewById(R.id.authButton);
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                /// Get data from the bosex and throw it to activity
                 EditText box = view.findViewById(R.id.authEmailBox);
                 String email = box.getText().toString();
                 box = view.findViewById(R.id.authPasswordBox);
                 String password = box.getText().toString();
-
-//                ImageView img = view.findViewById(R.id.testImageView);
-//                Bitmap bitmap = ((BitmapDrawable) img.getDrawable()).getBitmap();
-//                ByteArrayOutputStream baos = new ByteArrayOutputStream();
-//                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
-//                byte[] imageInByte = baos.toByteArray();
-
-//                Log.w("Test Base64", "Base64 string: " + Base64.encodeToString(imageInByte, Base64.DEFAULT));
-//
-//                bitmap = null;
-//                bitmap = BitmapFactory.decodeByteArray(imageInByte,0,imageInByte.length);
-//
-//                img.setImageBitmap(bitmap);
 
                 mListener.onAuthFragmentInteraction(email, password);
             }
@@ -75,6 +70,7 @@ public class AuthFragment extends Fragment {
 
         return view;
     }
+
 
     @Override
     public void onAttach(Context context) {
@@ -94,7 +90,7 @@ public class AuthFragment extends Fragment {
     }
 
     public interface OnFragmentInteractionListener {
-
+        ///Method to throw data to activity
         void onAuthFragmentInteraction(String email, String password);
     }
 }

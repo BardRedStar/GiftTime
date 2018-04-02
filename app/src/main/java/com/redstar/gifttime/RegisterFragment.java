@@ -39,10 +39,12 @@ public class RegisterFragment extends Fragment {
                              Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_register, container, false);
 
-        AppCompatButton button = (AppCompatButton) view.findViewById(R.id.regButton);
+        /// Set up button callback
+        AppCompatButton button = view.findViewById(R.id.regButton);
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                /// Get data from fields and throw them to activity
                 EditText box = view.findViewById(R.id.regEmailBox);
                 String email = box.getText().toString();
                 box = view.findViewById(R.id.regPasswordBox);
@@ -54,10 +56,6 @@ public class RegisterFragment extends Fragment {
         });
 
         return view;
-    }
-
-    public void onButtonPressed(Uri uri) {
-
     }
 
     @Override
@@ -78,6 +76,13 @@ public class RegisterFragment extends Fragment {
     }
 
     public interface OnFragmentInteractionListener {
+        /**
+         * Method to throw info to activity
+         *
+         * @param userName typed username
+         * @param email typed email
+         * @param password typed password
+         */
         void onRegisterFragmentInteraction(String userName, String email, String password);
     }
 }

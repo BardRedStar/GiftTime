@@ -25,11 +25,13 @@ public class AuthActivity extends AppCompatActivity implements AuthFragment.OnFr
     public FragmentManager fm;
     public HTTPServer mServer;
 
-    /*
-        0 - Auth screen
-        1 - Register screen
-     */
-    public int screenMode = 0;
+    /// Variable for holding current screen frame
+    private int screenMode = 0;
+
+    /// Screen frames
+    private static final int SCREEN_AUTH = 0;
+    private static final int SCREEN_REGISTER = 1;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,27 +45,35 @@ public class AuthActivity extends AppCompatActivity implements AuthFragment.OnFr
         tw.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                changeScreen(1);
+                changeScreen(SCREEN_REGISTER);
             }
         });
         mServer = new HTTPServer();
     }
 
+    /**
+     *  Device back button press event. Needs for correct screen changing.
+     */
     @Override
     public void onBackPressed() {
-        if (screenMode == 0) {
+        if (screenMode == SCREEN_AUTH) {
             super.onBackPressed();
         } else
-            changeScreen(0);
+            changeScreen(SCREEN_AUTH);
     }
 
+    /**
+     * Changes screen to new by screen mode value.
+     *
+     * @param newScreenMode index of screen to change on. Check out constants on the top.
+     */
     public void changeScreen(int newScreenMode) {
         switch (newScreenMode) {
-            case 0:
+            case SCREEN_AUTH:
                 fm.beginTransaction().hide(fm.findFragmentById(R.id.registerFragment))
                         .show(fm.findFragmentById(R.id.authFragment)).commit();
                 break;
-            case 1:
+            case SCREEN_REGISTER:
                 fm.beginTransaction().hide(fm.findFragmentById(R.id.authFragment))
                         .show(fm.findFragmentById(R.id.registerFragment)).commit();
                 break;
@@ -71,6 +81,13 @@ public class AuthActivity extends AppCompatActivity implements AuthFragment.OnFr
         screenMode = newScreenMode;
     }
 
+    /**
+     * Callback from {@link AuthFragment auth screen}. Runs when auth button was pressed.
+     * Throws an auth request to server with gotten data. Creates a new thread for request.
+     *
+     * @param email Email string from field
+     * @param password Password string from field
+     */
     @Override
     public void onAuthFragmentInteraction(final String email, final String password) {
         if (email.equals("")) {
@@ -113,6 +130,14 @@ public class AuthActivity extends AppCompatActivity implements AuthFragment.OnFr
         }.start();
     }
 
+    /**
+     * Callback from {@link RegisterFragment auth screen}. Runs when register button was pressed.
+     * Throws an register request to server with gotten data. Creates a new thread for request.
+     *
+     * @param userName User's name identifier
+     * @param email Email string from field
+     * @param password Password string from field
+     */
     @Override
     public void onRegisterFragmentInteraction(final String userName, final String email, final String password) {
         if (email.equals("")) {
@@ -185,6 +210,12 @@ public class AuthActivity extends AppCompatActivity implements AuthFragment.OnFr
         }.start();
     }
 
+    /**
+     * Checks email string for correct form.
+     *
+     * @param target email {@link CharSequence} to check
+     * @return true if email is correct and false otherwise.
+     */
     public final static boolean isValidEmail(CharSequence target) {
         return !TextUtils.isEmpty(target) && android.util.Patterns.EMAIL_ADDRESS.matcher(target).matches();
     }

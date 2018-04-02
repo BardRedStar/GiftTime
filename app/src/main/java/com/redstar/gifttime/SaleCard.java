@@ -1,5 +1,8 @@
 package com.redstar.gifttime;
 
+/**
+ * Information about card
+ */
 public class SaleCard {
     public String cardId = null;
     public String companyName = null;

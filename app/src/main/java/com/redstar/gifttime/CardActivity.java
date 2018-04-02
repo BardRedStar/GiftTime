@@ -136,6 +136,8 @@ public class CardActivity extends AppCompatActivity implements InfoCardFragment.
 
         changeScreen(SCREEN_MAIN);
 
+        /// Set callbacks for buttons from toolbar
+
         ImageButton btn = (ImageButton) findViewById(R.id.backButton);
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -145,7 +147,7 @@ public class CardActivity extends AppCompatActivity implements InfoCardFragment.
                 } else if (screenMode == SCREEN_ADD || screenMode == SCREEN_INFO) {
                     changeScreen(SCREEN_MAIN);
                 } else if (screenMode == SCREEN_CAMERA) {
-                    if (selectedPosition != -1)
+                    if (selectedPosition != SELECT_NONE)
                         changeScreen(SCREEN_EDIT);
                     else
                         changeScreen(SCREEN_ADD);
@@ -157,7 +159,7 @@ public class CardActivity extends AppCompatActivity implements InfoCardFragment.
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (selectedPosition != -1) {
+                if (selectedPosition != SELECT_NONE) {
                     EditCardFragment fragment = (EditCardFragment) fm.findFragmentById(R.id.editFragment);
                     SaleCard item = listCards.get(selectedPosition);
                     Bitmap cardCodeBitmap = BitmapFactory.decodeByteArray(item.cardCodePhoto, 0, item.cardCodePhoto.length);
@@ -182,7 +184,7 @@ public class CardActivity extends AppCompatActivity implements InfoCardFragment.
                     } else
                         Toast.makeText(CardActivity.this, "Ошибка! Проверьте введенные данные!", LENGTH_LONG).show();
                 } else if (screenMode == SCREEN_INFO) {
-                    if (selectedPosition != -1) {
+                    if (selectedPosition != SELECT_NONE) {
                         deleteCard(userId, selectedPosition);
                     } else {
                         changeScreen(SCREEN_MAIN);
@@ -193,7 +195,7 @@ public class CardActivity extends AppCompatActivity implements InfoCardFragment.
                     EditCardFragment editCardFragment = (EditCardFragment) fm.findFragmentById(R.id.editFragment);
                     SaleCard card = editCardFragment.getSaleCard();
                     if (card != null) {
-                        if (selectedPosition != -1) {
+                        if (selectedPosition != SELECT_NONE) {
                             editCard(userId, selectedPosition, card);
                         } else
                             Toast.makeText(CardActivity.this, "Ошибка! Попробуйте заново выбрать карту!", LENGTH_LONG).show();
@@ -205,6 +207,12 @@ public class CardActivity extends AppCompatActivity implements InfoCardFragment.
         });
     }
 
+    /**
+     * Function for logging in by email and password. Runs in new {@link Thread}.
+     *
+     * @param email Email string
+     * @param password Password string
+     */
     private void logIn(final String email, final String password) {
         new Thread() {
             @Override
@@ -222,6 +230,17 @@ public class CardActivity extends AppCompatActivity implements InfoCardFragment.
         }.start();
     }
 
+    /**
+     * Replaces old {@link SaleCard card} with new {@link SaleCard card} in
+     * {@link ArrayList list of cards} by position.
+     * <p>
+     * <s>Creates a new {@link Thread} for throwing edit request to server </s>
+     * </p>
+     *
+     * @param userId <s>userID for throw a request to server</s>
+     * @param position card position in RecyclerView to replace card
+     * @param card card to replace
+     */
     private void editCard(final String userId, final int position, final SaleCard card) {
         listCards.set(position, card);
         MainFragment fragment = (MainFragment) fm.findFragmentById(R.id.mainFragment);
@@ -264,6 +283,15 @@ public class CardActivity extends AppCompatActivity implements InfoCardFragment.
         }.start();*/
     }
 
+    /**
+     * Removes {@link SaleCard card} from {@link ArrayList list of cards} by position.
+     * <p>
+     * <s>Creates a new {@link Thread} for throwing delete request to server </s>
+     * </p>
+     *
+     * @param userId <s>userID for throw a request to server</s>
+     * @param position card position in RecyclerView to delete card
+     */
     private void deleteCard(final String userId, final int position) {
         if (listCards.remove(position) != null) {
             MainFragment fragment = (MainFragment) fm.findFragmentById(R.id.mainFragment);
@@ -297,6 +325,15 @@ public class CardActivity extends AppCompatActivity implements InfoCardFragment.
         }.start();*/
     }
 
+    /**
+     * Adds new {@link SaleCard card} in {@link ArrayList list of cards}.
+     * <p>
+     * <s>Creates a new {@link Thread} for throwing post request to server </s>
+     * </p>
+     *
+     * @param userId <s>userID for throw a request to server</s>
+     * @param card new card to add in array
+     */
     private void addCard(final String userId, final SaleCard card) {
         listCards.add(card);
         MainFragment fragment = (MainFragment) fm.findFragmentById(R.id.mainFragment);
@@ -359,6 +396,15 @@ public class CardActivity extends AppCompatActivity implements InfoCardFragment.
         */
     }
 
+    /** @deprecated
+     * Creates get request to server and loads current cards. Gets and parses
+     * {@link JSONObject JSON}.
+     * <p>
+     * Creates a new {@link Thread} for throwing post request to server
+     * </p>
+     *
+     * @param userId UserID for load cards
+     */
     private void loadCards(final String userId) {
         new Thread() {
             @Override
@@ -411,6 +457,13 @@ public class CardActivity extends AppCompatActivity implements InfoCardFragment.
         }.start();
     }
 
+    /**
+     * Gets result of permission request.
+     *
+     * @param requestCode constant to identify request
+     * @param permissions array of permissions
+     * @param grantResults array of request results for each requested permission
+     */
     @Override
     public void onRequestPermissionsResult(int requestCode,
                                            @NonNull String permissions[],
@@ -429,16 +482,28 @@ public class CardActivity extends AppCompatActivity implements InfoCardFragment.
         }
     }
 
+    /**
+     * Releases out {@link android.graphics.Camera camera}
+     * and {@link android.view.SurfaceView preview}
+     */
     private void releaseCamera() {
         CameraFragment fragment = (CameraFragment) fm.findFragmentById(R.id.cameraFragment);
         fragment.releaseCameraAndPreview();
     }
 
+    /**
+     * Opens {@link android.graphics.Camera camera} and {@link android.view.SurfaceView preview}
+     */
     private void openCamera() {
         CameraFragment fragment = (CameraFragment) fm.findFragmentById(R.id.cameraFragment);
         fragment.safeCameraOpen();
     }
 
+    /**
+     * Callback from {@link EditCardFragment edit card screen}. Runs when
+     * change card code photo button was pressed. Changes frame from
+     * {@link EditCardFragment edit card screen} to {@link CameraFragment camera screen}.
+     */
     @Override
     public void onCardCodePhotoButtonClick() {
         cameraMode = CAMERA_CARDCODEPHOTO;
@@ -446,6 +511,11 @@ public class CardActivity extends AppCompatActivity implements InfoCardFragment.
         openCamera();
     }
 
+    /**
+     * Callback from {@link EditCardFragment edit card screen}. Runs when
+     * change card photo button was pressed. Changes frame from
+     * {@link EditCardFragment edit card screen} to {@link CameraFragment camera screen}.
+     */
     @Override
     public void onCardPhotoButtonClick() {
         cameraMode = CAMERA_CARDPHOTO;
@@ -453,27 +523,36 @@ public class CardActivity extends AppCompatActivity implements InfoCardFragment.
         openCamera();
     }
 
+    /**
+     * Callback from {@link CameraFragment camera screen}. Runs when
+     * photo was created. Applies photo to appropriate {@link android.widget.ImageView}.
+     *
+     * @param photo Bitmap of created photo
+     */
     @Override
     public void onPhotoTaken(Bitmap photo) {
         EditCardFragment editFragment = (EditCardFragment) fm.findFragmentById(R.id.editFragment);
         InfoCardFragment infoFragment = (InfoCardFragment) fm.findFragmentById(R.id.infoFragment);
         if (cameraMode == CAMERA_CARDPHOTO) {
             editFragment.setCardImage(photo);
-            if (selectedPosition != -1)
+            if (selectedPosition != SELECT_NONE)
                 infoFragment.setCardImage(photo);
         } else if (cameraMode == CAMERA_CARDCODEPHOTO) {
             editFragment.setCardCodeImage(photo);
-            if (selectedPosition != -1)
+            if (selectedPosition != SELECT_NONE)
                 infoFragment.setCardCodeImage(photo);
         }
         releaseCamera();
 
-        if (selectedPosition != -1)
+        if (selectedPosition != SELECT_NONE)
             changeScreen(SCREEN_EDIT);
         else
             changeScreen(SCREEN_ADD);
     }
 
+    /**
+     * Activity pause event. Releases {@link android.graphics.Camera Camera}.
+     */
     @Override
     protected void onPause() {
         super.onPause();
@@ -482,6 +561,9 @@ public class CardActivity extends AppCompatActivity implements InfoCardFragment.
             releaseCamera();
     }
 
+    /**
+     * Activity destroy event. Releases {@link android.graphics.Camera Camera}.
+     */
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -490,6 +572,10 @@ public class CardActivity extends AppCompatActivity implements InfoCardFragment.
             releaseCamera();
     }
 
+    /**
+     * Activity resume event. Opens {@link android.graphics.Camera Camera} if it was open before
+     * application was paused.
+     */
     @Override
     protected void onResume() {
         super.onResume();
@@ -498,6 +584,15 @@ public class CardActivity extends AppCompatActivity implements InfoCardFragment.
             openCamera();
     }
 
+    /**
+     * Callback from {@link MainFragment main screen}. Runs when item from
+     * {@link android.support.v7.widget.RecyclerView RecyclerView} was pressed. Remembers selected
+     * position and clears {@link InfoCardFragment info screen}. Changes screen to
+     * {@link InfoCardFragment info screen}.
+     *
+     * @param item Selected card from {@link android.support.v7.widget.RecyclerView RecyclerView}
+     * @param position Position of selected {@link SaleCard card}
+     */
     @Override
     public void onListFragmentInteraction(SaleCard item, int position) {
         selectedPosition = position;
@@ -509,9 +604,13 @@ public class CardActivity extends AppCompatActivity implements InfoCardFragment.
         changeScreen(SCREEN_INFO);
     }
 
+    /**
+     * Callback from {@link MainFragment main screen}. Runs when
+     * {@link android.widget.Button add button} was pressed. Used for changing screen.
+     */
     @Override
     public void onAddButtonClicked() {
-        selectedPosition = -1;
+        selectedPosition = SELECT_NONE;
         EditCardFragment fragment = (EditCardFragment) fm.findFragmentById(R.id.editFragment);
         BitmapDrawable d1 = (BitmapDrawable) getResources().getDrawable(R.mipmap.technomax);
         BitmapDrawable d2 = (BitmapDrawable) getResources().getDrawable(R.mipmap.tuman);
@@ -519,14 +618,18 @@ public class CardActivity extends AppCompatActivity implements InfoCardFragment.
         changeScreen(SCREEN_ADD);
     }
 
-
+    /**
+     * Changes screen to new by screen mode value.
+     *
+     * @param newScreenMode index of screen to change on. Check out constants on the top.
+     */
     public void changeScreen(int newScreenMode) {
         TextView tw;
         BottomNavigationView bnv;
         ImageButton imgBtn;
         switch (newScreenMode) {
             case SCREEN_MAIN:
-                selectedPosition = -1;
+                selectedPosition = SELECT_NONE;
                 fm.beginTransaction().hide(fm.findFragmentById(R.id.infoFragment))
                         .hide(fm.findFragmentById(R.id.editFragment))
                         .hide(fm.findFragmentById(R.id.cameraFragment))
@@ -604,6 +707,9 @@ public class CardActivity extends AppCompatActivity implements InfoCardFragment.
         screenMode = newScreenMode;
     }
 
+    /**
+     *  Device back button press event. Needs for correct screen changing.
+     */
     @Override
     public void onBackPressed() {
         if (screenMode == SCREEN_MAIN) {
@@ -614,7 +720,7 @@ public class CardActivity extends AppCompatActivity implements InfoCardFragment.
             changeScreen(SCREEN_INFO);
         } else if (screenMode == SCREEN_CAMERA) {
 
-            if (selectedPosition != -1)
+            if (selectedPosition != SELECT_NONE)
                 changeScreen(SCREEN_EDIT);
             else
                 changeScreen(SCREEN_ADD);

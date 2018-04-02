@@ -18,6 +18,7 @@ import java.util.List;
 
 public class SaleCardRecyclerViewAdapter extends RecyclerView.Adapter<SaleCardRecyclerViewAdapter.ViewHolder> {
 
+    /// Cards list
     private final List<SaleCard> mValues;
     private final FragmentListener mListener;
 
@@ -26,6 +27,7 @@ public class SaleCardRecyclerViewAdapter extends RecyclerView.Adapter<SaleCardRe
         mListener = listener;
     }
 
+    /// When item was created
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
@@ -33,8 +35,16 @@ public class SaleCardRecyclerViewAdapter extends RecyclerView.Adapter<SaleCardRe
         return new ViewHolder(view);
     }
 
+    /**
+     * Binds data to items.
+     *
+     * @param holder Holder with data of current item
+     * @param position Item position in list
+     */
+
     @Override
     public void onBindViewHolder(final ViewHolder holder, final int position) {
+        /// Set data to fields
         holder.mItem = mValues.get(position);
         holder.mCompanyName.setText(mValues.get(position).companyName);
         holder.mCardDescription.setText(mValues.get(position).cardDescription);
@@ -42,6 +52,7 @@ public class SaleCardRecyclerViewAdapter extends RecyclerView.Adapter<SaleCardRe
         Bitmap bm = BitmapFactory.decodeByteArray(mValues.get(position).cardPhoto, 0, mValues.get(position).cardPhoto.length);
         holder.mCompanyLogo.setImageBitmap(bm);
 
+        /// Set up click listener to throw data to activity
         holder.mView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -53,11 +64,15 @@ public class SaleCardRecyclerViewAdapter extends RecyclerView.Adapter<SaleCardRe
         });
     }
 
+    /// Returns items count
     @Override
     public int getItemCount() {
         return mValues.size();
     }
 
+    /**
+     * Holder to attach data to items
+     */
     public class ViewHolder extends RecyclerView.ViewHolder {
         public final View mView;
         public final TextView mCompanyName;

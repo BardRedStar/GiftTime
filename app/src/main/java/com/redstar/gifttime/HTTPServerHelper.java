@@ -31,13 +31,24 @@ import okhttp3.Route;
 
 public class HTTPServerHelper {
 
+    /// Client object
     private OkHttpClient client;
 
+    /// Host IP adress
     private static final String SERVER_IP = "80.93.182.129:3000";
+
+    /// Requests protocol
     private static final String PROTOCOL = "http";
 
+    /// Requests content type
     public static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
 
+    /**
+     * Constructor with email and password. Modifies all of requests with cookies, auth data and
+     * another params.
+     * @param email user's email
+     * @param password user's password
+     */
     public HTTPServerHelper(final String email, final String password) {
         client = new OkHttpClient.Builder()
                 .connectTimeout(10, TimeUnit.SECONDS)
@@ -63,14 +74,24 @@ public class HTTPServerHelper {
 
     public HTTPServerHelper() {
         client = new OkHttpClient();
-        Log.w("Gift Time", "Created an empty client!");
     }
 
-    private String buildURL(String sURL) {
-        Log.w("Gift Time", "Request URL: " + PROTOCOL + "://" + SERVER_IP + sURL);
-        return PROTOCOL + "://" + SERVER_IP + sURL;
+    /**
+     * Builds a full request URL
+     * @param method Request method
+     * @return full request URL
+     */
+    private String buildURL(String method) {
+        return PROTOCOL + "://" + SERVER_IP + method;
     }
 
+    /**
+     * Does POST query to server.
+     *
+     * @param sURL Request URL
+     * @param query Request body
+     * @return {@link HTTPAnswer HTTPAnswer} object with response data from server
+     */
     public HTTPAnswer doPostQuery(String sURL, String query) {
         try {
             RequestBody body = RequestBody.create(JSON, query.getBytes());
@@ -86,6 +107,13 @@ public class HTTPServerHelper {
         }
     }
 
+    /**
+     * Does POST query to server.
+     *
+     * @param sURL Request URL
+     * @param query Request body
+     * @return {@link HTTPAnswer HTTPAnswer} object with response data from server
+     */
     public HTTPAnswer doPutQuery(String sURL, String query) {
         try {
             RequestBody body = RequestBody.create(JSON, query.getBytes());
@@ -102,6 +130,12 @@ public class HTTPServerHelper {
         }
     }
 
+    /**
+     * Does GET query to server.
+     *
+     * @param sURL Request URL
+     * @return {@link HTTPAnswer HTTPAnswer} object with response data from server
+     */
     public HTTPAnswer doGetQuery(String sURL) {
         try {
             Request request = new Request.Builder()
@@ -117,6 +151,12 @@ public class HTTPServerHelper {
         }
     }
 
+    /**
+     * Does DELETE query to server.
+     *
+     * @param sURL Request URL
+     * @return {@link HTTPAnswer HTTPAnswer} object with response data from server
+     */
     public HTTPAnswer doDeleteQuery(String sURL) {
         try {
             Request request = new Request.Builder()
@@ -132,6 +172,9 @@ public class HTTPServerHelper {
         }
     }
 
+    /**
+     * Answer from the server. Contains string with answer body and responce code,
+     */
     class HTTPAnswer {
         private String answer = null;
         private int responseCode;
@@ -152,25 +195,23 @@ public class HTTPServerHelper {
         }
     }
 
+    /**
+     * Auth Interceptor for modifying requests with user email and password.
+     * Sets the authorization header to each request.
+     */
     public class BasicAuthInterceptor implements Interceptor {
 
         private String credentials;
 
         public BasicAuthInterceptor(String user, String password) {
             this.credentials = Credentials.basic(user, password);
-            Log.w("Gift Time", "User: " + user + " " + password);
-            Log.w("Gift Time", "Credential: " + credentials);
         }
 
         @Override
         public Response intercept(Chain chain) throws IOException {
-            Log.w("Gift Time", "Intercept!");
             Request request = chain.request();
-            Log.w("Gift Time", "Headers num: " + request.headers().size());
             Request authenticatedRequest = request.newBuilder()
                     .addHeader("Authorization", credentials).build();
-            Log.w("Gift Time", "Headers num: " + authenticatedRequest.headers().size());
-            Log.w("Gift Time", authenticatedRequest.headers().name(0));
             return chain.proceed(authenticatedRequest);
         }
 
